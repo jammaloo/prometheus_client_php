@@ -54,7 +54,7 @@ class Redis implements Adapter
     public function __construct(array $options = [])
     {
         $this->options = array_merge(self::$defaultOptions, $options);
-        $this->redis = new \Redis();
+        $this->redis = new \Predis\Client();
     }
 
     /**
@@ -62,7 +62,7 @@ class Redis implements Adapter
      * @return static
      * @throws StorageException
      */
-    public static function fromExistingConnection(\Redis $redis): self
+    public static function fromExistingConnection(\Predis\Client $redis): self
     {
         if ($redis->isConnected() === false) {
             throw new StorageException('Connection to Redis server not established');
@@ -137,7 +137,7 @@ class Redis implements Adapter
             $this->redis->select($this->options['database']);
         }
 
-        $this->redis->setOption(\Redis::OPT_READ_TIMEOUT, $this->options['read_timeout']);
+        $this->redis->setOption(3, $this->options['read_timeout']);
     }
 
     /**
@@ -159,7 +159,7 @@ class Redis implements Adapter
             if (!$connection_successful) {
                 throw new StorageException("Can't connect to Redis server", 0);
             }
-        } catch (\RedisException $e) {
+        } catch (\Predis\PredisException $e) {
             throw new StorageException("Can't connect to Redis server", 0, $e);
         }
     }
